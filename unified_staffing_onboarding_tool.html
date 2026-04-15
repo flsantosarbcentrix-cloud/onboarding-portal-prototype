@@ -1,0 +1,431 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{background:var(--color-background-tertiary);min-height:600px;border-radius:var(--border-radius-lg);overflow:hidden}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.topbar-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.role-switcher{display:flex;gap:6px}
+.role-btn{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.role-btn.active-ta{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.role-btn.active-ob{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.main{display:grid;grid-template-columns:220px 1fr;min-height:560px}
+.sidebar{background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);padding:16px 12px}
+.sidebar-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;padding:0 8px}
+.emp-card{padding:8px;border-radius:var(--border-radius-md);cursor:pointer;margin-bottom:4px;transition:background .1s}
+.emp-card:hover{background:var(--color-background-secondary)}
+.emp-card.active{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary)}
+.emp-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.emp-role{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.emp-status{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;margin-top:4px}
+.status-ta{background:#E6F1FB;color:#0C447C}
+.status-ob{background:#E1F5EE;color:#085041}
+.status-done{background:#EAF3DE;color:#27500A}
+.content{padding:20px 24px;overflow-y:auto}
+.section-header{font-size:13px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.03em}
+.field input,.field select{font-size:13px;padding:7px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:#378ADD}
+.field input.locked{background:var(--color-background-secondary);color:var(--color-text-secondary);pointer-events:none}
+.field-full{grid-column:1/-1}
+.lock-banner{background:#FAEEDA;border:0.5px solid #FAC775;border-radius:var(--border-radius-md);padding:10px 14px;font-size:12px;color:#633806;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.handoff-banner{background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:10px 14px;font-size:12px;color:#085041;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-block{margin-bottom:24px}
+.checklist-group{margin-bottom:18px}
+.checklist-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);margin-bottom:6px;cursor:pointer;transition:background .1s}
+.check-item:hover{background:var(--color-background-secondary)}
+.check-item.checked{background:#E1F5EE;border-color:#5DCAA5}
+.check-item input[type=checkbox]{width:15px;height:15px;accent-color:#1D9E75;cursor:pointer;flex-shrink:0}
+.check-label{font-size:13px;color:var(--color-text-primary);flex:1}
+.check-item.checked .check-label{color:#085041}
+.check-date{font-size:11px;color:var(--color-text-tertiary)}
+.progress-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:4px;overflow:hidden}
+.progress-fill{height:100%;background:#1D9E75;border-radius:2px;transition:width .3s}
+.progress-label{font-size:11px;color:var(--color-text-secondary)}
+.action-row{display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--color-border-tertiary)}
+.btn-primary{font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--border-radius-md);border:0.5px solid #378ADD;background:#E6F1FB;color:#0C447C;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:#B5D4F4}
+.btn-handoff{font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--border-radius-md);border:0.5px solid #1D9E75;background:#E1F5EE;color:#085041;cursor:pointer;transition:all .15s}
+.btn-handoff:hover{background:#9FE1CB}
+.btn-ghost{font-size:13px;padding:8px 18px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer}
+.toast{position:absolute;top:12px;right:12px;background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041;border-radius:var(--border-radius-md);padding:10px 16px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.avatar{width:32px;height:32px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#0C447C;flex-shrink:0}
+.new-btn{font-size:12px;font-weight:500;padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;width:100%;margin-bottom:12px;transition:background .15s}
+.new-btn:hover{background:var(--color-background-secondary)}
+.equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+</style>
+
+<div class="app" style="position:relative">
+<div class="toast" id="toast"></div>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Staffing & Onboarding</div>
+    <div class="topbar-sub">Arbcentrix Corp — HR Portal</div>
+  </div>
+  <div class="role-switcher">
+    <button class="role-btn active-ta" id="btn-ta" onclick="switchRole('ta')">Talent Acquisition</button>
+    <button class="role-btn" id="btn-ob" onclick="switchRole('ob')">Onboarding Specialist</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-label">Employees</div>
+    <button class="new-btn" onclick="newEmployee()">+ New employee</button>
+    <div id="emp-list"></div>
+  </div>
+
+  <div class="content" id="content-area">
+    <div style="color:var(--color-text-secondary);font-size:13px;margin-top:40px;text-align:center">Select an employee or create a new one</div>
+  </div>
+</div>
+</div>
+
+<script>
+const today = new Date().toISOString().split('T')[0];
+let role = 'ta';
+let activeEmp = null;
+
+let employees = [
+  {
+    id:1, initials:'JS', name:'Juan Santos', position:'Accounting Associate',
+    client:'Engaging Networks', dept:'Accounting', engagement:'Regular Hire',
+    shift:'Day-Shift', timezone:'Eastern', supervisor:'Maria Reyes', teamlead:'Carlo Tan',
+    startDate:'2026-05-01', status:'ta',
+    lastName:'Santos', firstName:'Juan', middleName:'Cruz', nickname:'Jun',
+    address:'123 Rizal St, Quezon City', dob:'1998-04-10', pob:'Manila',
+    civil:'Single', gender:'Male', citizenship:'Filipino',
+    contact1:'09171234567', contact2:'', email:'jsantos@gmail.com',
+    ecName:'Maria Santos', ecNum1:'09181234567', ecNum2:'', ecRel:'Mother',
+    eduType1:'Bachelor\'s Degree', eduSchool1:'University of Santo Tomas', eduCourse1:'BS Accountancy', eduYear1:'2021',
+    eduType2:'', eduSchool2:'', eduCourse2:'', eduYear2:'',
+    tin:'', sss:'', philhealth:'', pagibig:'',
+    arbEmail:'', clientCreds:'',
+    checklist:{
+      preEmployment:false, personalData:false, staffingSheet:false,
+      jobOffer:false, probContract:false, codeOfConduct:false,
+      handbook:false, propertyReceipt:false,
+      startDate:false, execIntro:false, welcomeEmail:false, credsEmail:false,
+      qrCode:false, badge:false, laptop:false, headset:false, mouse:false, station:false, uniform:false
+    }
+  }
+];
+let nextId = 2;
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function switchRole(r){
+  role=r;
+  document.getElementById('btn-ta').className='role-btn'+(r==='ta'?' active-ta':'');
+  document.getElementById('btn-ob').className='role-btn'+(r==='ob'?' active-ob':'');
+  if(activeEmp) renderContent();
+}
+
+function newEmployee(){
+  const emp={
+    id:nextId++, initials:'', name:'New Employee', position:'', client:'', dept:'',
+    engagement:'', shift:'', timezone:'', supervisor:'', teamlead:'', startDate:'',
+    status:'ta',
+    lastName:'', firstName:'', middleName:'', nickname:'', address:'',
+    dob:'', pob:'', civil:'', gender:'', citizenship:'',
+    contact1:'', contact2:'', email:'',
+    ecName:'', ecNum1:'', ecNum2:'', ecRel:'',
+    eduType1:'', eduSchool1:'', eduCourse1:'', eduYear1:'',
+    eduType2:'', eduSchool2:'', eduCourse2:'', eduYear2:'',
+    tin:'', sss:'', philhealth:'', pagibig:'',
+    arbEmail:'', clientCreds:'',
+    checklist:{
+      preEmployment:false, personalData:false, staffingSheet:false,
+      jobOffer:false, probContract:false, codeOfConduct:false,
+      handbook:false, propertyReceipt:false,
+      startDate:false, execIntro:false, welcomeEmail:false, credsEmail:false,
+      qrCode:false, badge:false, laptop:false, headset:false, mouse:false, station:false, uniform:false
+    }
+  };
+  employees.push(emp);
+  activeEmp=emp;
+  renderSidebar();
+  renderContent();
+}
+
+function selectEmp(id){
+  activeEmp=employees.find(e=>e.id===id);
+  renderSidebar();
+  renderContent();
+}
+
+function getInitials(e){
+  if(e.firstName&&e.lastName) return (e.firstName[0]+e.lastName[0]).toUpperCase();
+  return e.initials||'?';
+}
+
+function getDisplayName(e){
+  if(e.firstName||e.lastName) return ((e.firstName||'')+' '+(e.lastName||'')).trim();
+  return e.name||'New Employee';
+}
+
+function statusBadge(s){
+  if(s==='ta') return '<span class="emp-status status-ta">TA in progress</span>';
+  if(s==='ob') return '<span class="emp-status status-ob">Onboarding</span>';
+  if(s==='done') return '<span class="emp-status status-done">Complete</span>';
+  return '';
+}
+
+function renderSidebar(){
+  const list=document.getElementById('emp-list');
+  list.innerHTML=employees.map(e=>`
+    <div class="emp-card${activeEmp&&activeEmp.id===e.id?' active':''}" onclick="selectEmp(${e.id})">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar">${getInitials(e)}</div>
+        <div>
+          <div class="emp-name">${getDisplayName(e)}</div>
+          <div class="emp-role">${e.position||'No position yet'}</div>
+          ${statusBadge(e.status)}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function checkProgress(e){
+  const keys=Object.keys(e.checklist);
+  const done=keys.filter(k=>e.checklist[k]).length;
+  return {done, total:keys.length, pct:Math.round(done/keys.length*100)};
+}
+
+function renderContent(){
+  const e=activeEmp;
+  if(!e){document.getElementById('content-area').innerHTML='<div style="color:var(--color-text-secondary);font-size:13px;margin-top:40px;text-align:center">Select an employee or create a new one</div>';return;}
+  const isTA=role==='ta';
+  const locked=!isTA;
+  const lk=locked?'locked':'';
+  const prog=checkProgress(e);
+
+  const taSection=`
+    ${locked?`<div class="lock-banner"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2"/></svg>Filled by Talent Acquisition — read only for Onboarding</div>`:''}
+
+    <div class="section-block">
+      <div class="section-header">Personal information</div>
+      <div class="form-grid-3">
+        <div class="field"><label>Last name</label><input class="${lk}" value="${e.lastName}" ${locked?'readonly':''} onchange="update(${e.id},'lastName',this.value)"/></div>
+        <div class="field"><label>First name</label><input class="${lk}" value="${e.firstName}" ${locked?'readonly':''} onchange="update(${e.id},'firstName',this.value)"/></div>
+        <div class="field"><label>Middle name</label><input class="${lk}" value="${e.middleName}" ${locked?'readonly':''} onchange="update(${e.id},'middleName',this.value)"/></div>
+        <div class="field"><label>Nickname</label><input class="${lk}" value="${e.nickname}" ${locked?'readonly':''} onchange="update(${e.id},'nickname',this.value)"/></div>
+        <div class="field"><label>Date of birth</label><input type="${locked?'text':'date'}" class="${lk}" value="${e.dob}" ${locked?'readonly':''} onchange="update(${e.id},'dob',this.value)"/></div>
+        <div class="field"><label>Place of birth</label><input class="${lk}" value="${e.pob}" ${locked?'readonly':''} onchange="update(${e.id},'pob',this.value)"/></div>
+        <div class="field"><label>Civil status</label>
+          ${locked?`<input class="locked" value="${e.civil}" readonly/>`:`<select onchange="update(${e.id},'civil',this.value)"><option value="">Select</option>${['Single','Married','Widowed','Separated'].map(o=>`<option${e.civil===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Gender</label>
+          ${locked?`<input class="locked" value="${e.gender}" readonly/>`:`<select onchange="update(${e.id},'gender',this.value)"><option value="">Select</option>${['Male','Female','Prefer not to say'].map(o=>`<option${e.gender===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Citizenship</label><input class="${lk}" value="${e.citizenship}" ${locked?'readonly':''} onchange="update(${e.id},'citizenship',this.value)"/></div>
+      </div>
+      <div class="form-grid">
+        <div class="field field-full"><label>Address</label><input class="${lk}" value="${e.address}" ${locked?'readonly':''} onchange="update(${e.id},'address',this.value)"/></div>
+        <div class="field"><label>Contact number 1</label><input class="${lk}" value="${e.contact1}" ${locked?'readonly':''} onchange="update(${e.id},'contact1',this.value)"/></div>
+        <div class="field"><label>Contact number 2</label><input class="${lk}" value="${e.contact2}" ${locked?'readonly':''} onchange="update(${e.id},'contact2',this.value)"/></div>
+        <div class="field field-full"><label>Personal email</label><input class="${lk}" value="${e.email}" ${locked?'readonly':''} onchange="update(${e.id},'email',this.value)"/></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-header">Emergency contact</div>
+      <div class="form-grid">
+        <div class="field"><label>Name</label><input class="${lk}" value="${e.ecName}" ${locked?'readonly':''} onchange="update(${e.id},'ecName',this.value)"/></div>
+        <div class="field"><label>Relationship</label><input class="${lk}" value="${e.ecRel}" ${locked?'readonly':''} onchange="update(${e.id},'ecRel',this.value)"/></div>
+        <div class="field"><label>Contact number 1</label><input class="${lk}" value="${e.ecNum1}" ${locked?'readonly':''} onchange="update(${e.id},'ecNum1',this.value)"/></div>
+        <div class="field"><label>Contact number 2</label><input class="${lk}" value="${e.ecNum2}" ${locked?'readonly':''} onchange="update(${e.id},'ecNum2',this.value)"/></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-header">Educational background</div>
+      <div class="form-grid" style="margin-bottom:8px">
+        <div class="field"><label>Type</label>
+          ${locked?`<input class="locked" value="${e.eduType1}" readonly/>`:`<select onchange="update(${e.id},'eduType1',this.value)"><option value="">Select</option>${["Bachelor's Degree","Master's Degree","Completed Courses","Specialization"].map(o=>`<option${e.eduType1===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>School / institution</label><input class="${lk}" value="${e.eduSchool1}" ${locked?'readonly':''} onchange="update(${e.id},'eduSchool1',this.value)"/></div>
+        <div class="field"><label>Degree / course</label><input class="${lk}" value="${e.eduCourse1}" ${locked?'readonly':''} onchange="update(${e.id},'eduCourse1',this.value)"/></div>
+        <div class="field"><label>Year completed</label><input class="${lk}" value="${e.eduYear1}" ${locked?'readonly':''} onchange="update(${e.id},'eduYear1',this.value)"/></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Type (2nd)</label>
+          ${locked?`<input class="locked" value="${e.eduType2}" readonly/>`:`<select onchange="update(${e.id},'eduType2',this.value)"><option value="">Select</option>${["Bachelor's Degree","Master's Degree","Completed Courses","Specialization"].map(o=>`<option${e.eduType2===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>School / institution</label><input class="${lk}" value="${e.eduSchool2}" ${locked?'readonly':''} onchange="update(${e.id},'eduSchool2',this.value)"/></div>
+        <div class="field"><label>Degree / course</label><input class="${lk}" value="${e.eduCourse2}" ${locked?'readonly':''} onchange="update(${e.id},'eduCourse2',this.value)"/></div>
+        <div class="field"><label>Year completed</label><input class="${lk}" value="${e.eduYear2}" ${locked?'readonly':''} onchange="update(${e.id},'eduYear2',this.value)"/></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-header">Hiring information</div>
+      <div class="form-grid">
+        <div class="field"><label>Client</label>
+          ${locked?`<input class="locked" value="${e.client}" readonly/>`:`<select onchange="update(${e.id},'client',this.value)"><option value="">Select</option>${['Engaging Networks','Netlink','Dogwood','My Wireless'].map(o=>`<option${e.client===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Department</label>
+          ${locked?`<input class="locked" value="${e.dept}" readonly/>`:`<select onchange="update(${e.id},'dept',this.value)"><option value="">Select</option>${['Accounting','Human Resource','Administrative','IT','Marketing'].map(o=>`<option${e.dept===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Position</label><input class="${lk}" value="${e.position}" ${locked?'readonly':''} onchange="update(${e.id},'position',this.value)"/></div>
+        <div class="field"><label>Type of engagement</label>
+          ${locked?`<input class="locked" value="${e.engagement}" readonly/>`:`<select onchange="update(${e.id},'engagement',this.value)"><option value="">Select</option>${['Regular Hire','Project Hire','Consultant','Internship'].map(o=>`<option${e.engagement===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Shift</label>
+          ${locked?`<input class="locked" value="${e.shift}" readonly/>`:`<select onchange="update(${e.id},'shift',this.value)"><option value="">Select</option>${['Day-Shift','Night-Shift'].map(o=>`<option${e.shift===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Timezone</label>
+          ${locked?`<input class="locked" value="${e.timezone}" readonly/>`:`<select onchange="update(${e.id},'timezone',this.value)"><option value="">Select</option>${['Eastern','Central','Pacific','Mountain','PH'].map(o=>`<option${e.timezone===o?' selected':''}>${o}</option>`).join('')}</select>`}
+        </div>
+        <div class="field"><label>Direct supervisor</label><input class="${lk}" value="${e.supervisor}" ${locked?'readonly':''} onchange="update(${e.id},'supervisor',this.value)"/></div>
+        <div class="field"><label>Team lead</label><input class="${lk}" value="${e.teamlead}" ${locked?'readonly':''} onchange="update(${e.id},'teamlead',this.value)"/></div>
+        <div class="field"><label>Start date</label><input type="${locked?'text':'date'}" class="${lk}" value="${e.startDate}" ${locked?'readonly':''} onchange="update(${e.id},'startDate',this.value)"/></div>
+      </div>
+    </div>
+
+    ${isTA&&e.status==='ta'?`<div class="action-row">
+      <button class="btn-handoff" onclick="handoffToOB(${e.id})">Hand off to Onboarding</button>
+      <button class="btn-ghost" onclick="saveDraft(${e.id})">Save draft</button>
+    </div>`:''}
+    ${isTA&&e.status!=='ta'?`<div class="action-row"><span style="font-size:12px;color:var(--color-text-secondary)">Handed off to Onboarding Specialist</span></div>`:''}
+  `;
+
+  const obSection=e.status==='ta'&&role==='ob'?`<div class="lock-banner"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2"/></svg>Waiting for TA to hand off this profile first</div>`:
+  role==='ob'?`
+    <div class="handoff-banner"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Profile received from Talent Acquisition — complete the fields below</div>
+
+    <div class="section-block">
+      <div class="section-header">Government IDs</div>
+      <div class="form-grid-3">
+        <div class="field"><label>TIN</label><input value="${e.tin}" onchange="update(${e.id},'tin',this.value)"/></div>
+        <div class="field"><label>SSS number</label><input value="${e.sss}" onchange="update(${e.id},'sss',this.value)"/></div>
+        <div class="field"><label>PhilHealth number</label><input value="${e.philhealth}" onchange="update(${e.id},'philhealth',this.value)"/></div>
+        <div class="field"><label>Pag-IBIG number</label><input value="${e.pagibig}" onchange="update(${e.id},'pagibig',this.value)"/></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-header">Internal accounts</div>
+      <div class="form-grid">
+        <div class="field"><label>Arbcentrix email (Microsoft 365)</label><input value="${e.arbEmail}" onchange="update(${e.id},'arbEmail',this.value)" placeholder="firstname.lastname@arbcentrix.com"/></div>
+        <div class="field"><label>Client account credentials</label><input value="${e.clientCreds}" onchange="update(${e.id},'clientCreds',this.value)" placeholder="e.g. portal login details"/></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-header">Onboarding checklist</div>
+      <div style="margin-bottom:12px">
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:${prog.pct}%"></div></div>
+        <div class="progress-label">${prog.done} of ${prog.total} items complete — ${prog.pct}%</div>
+      </div>
+
+      <div class="checklist-group">
+        <div class="checklist-title">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Pre-onboarding compliance
+        </div>
+        ${checkItem(e,'preEmployment','Pre-employment requirements')}
+        ${checkItem(e,'personalData','Personal data form')}
+        ${checkItem(e,'staffingSheet','Staffing sheet completed')}
+        ${checkItem(e,'jobOffer','Job offer signed')}
+        ${checkItem(e,'probContract','Probationary contract')}
+        ${checkItem(e,'codeOfConduct','Code of conduct')}
+        ${checkItem(e,'handbook','Employee handbook')}
+        ${checkItem(e,'propertyReceipt','Company property receipt form')}
+      </div>
+
+      <div class="checklist-group">
+        <div class="checklist-title">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Onboarding activities
+        </div>
+        ${checkItem(e,'startDate','Start date / onboarding date confirmed')}
+        ${checkItem(e,'execIntro','Monthly executive intro session scheduled')}
+        ${checkItem(e,'welcomeEmail','Welcome email sent')}
+        ${checkItem(e,'credsEmail','Credentials email sent')}
+      </div>
+
+      <div class="checklist-group">
+        <div class="checklist-title">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="4" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4V3a2 2 0 014 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
+          Equipment
+        </div>
+        <div class="equipment-grid">
+          ${checkItem(e,'qrCode','QR code — building access')}
+          ${checkItem(e,'badge','Access badge')}
+          ${checkItem(e,'laptop','Laptop')}
+          ${checkItem(e,'headset','Headset')}
+          ${checkItem(e,'mouse','Mouse')}
+          ${checkItem(e,'station','Station')}
+          ${checkItem(e,'uniform','Uniform')}
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-handoff" onclick="markComplete(${e.id})">Mark as complete</button>
+        <button class="btn-ghost" onclick="saveDraft(${e.id})">Save progress</button>
+      </div>
+    </div>
+  `:'';
+
+  document.getElementById('content-area').innerHTML = isTA ? taSection : obSection;
+}
+
+function checkItem(e,key,label){
+  const checked=e.checklist[key];
+  return `<div class="check-item${checked?' checked':''}" onclick="toggleCheck(${e.id},'${key}')">
+    <input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleCheck(${e.id},'${key}')"/>
+    <span class="check-label">${label}</span>
+  </div>`;
+}
+
+function toggleCheck(id,key){
+  const e=employees.find(x=>x.id===id);
+  e.checklist[key]=!e.checklist[key];
+  renderContent();
+}
+
+function update(id,field,val){
+  const e=employees.find(x=>x.id===id);
+  e[field]=val;
+  if(field==='firstName'||field==='lastName'){
+    e.name=((e.firstName||'')+' '+(e.lastName||'')).trim()||'New Employee';
+  }
+  renderSidebar();
+}
+
+function saveDraft(id){
+  renderSidebar();
+  showToast('Draft saved');
+}
+
+function handoffToOB(id){
+  const e=employees.find(x=>x.id===id);
+  e.status='ob';
+  renderSidebar();
+  renderContent();
+  showToast('Profile handed off to Onboarding Specialist');
+}
+
+function markComplete(id){
+  const e=employees.find(x=>x.id===id);
+  e.status='done';
+  renderSidebar();
+  renderContent();
+  showToast('Onboarding marked complete — saved to SharePoint');
+}
+
+renderSidebar();
+selectEmp(1);
+</script>
